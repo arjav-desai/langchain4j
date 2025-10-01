@@ -4,35 +4,55 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 class GeminiGenerationConfig {
 
-    @JsonProperty
+    @JsonProperty("stopSequences")
     private final List<String> stopSequences;
-    @JsonProperty
+
+    @JsonProperty("responseMimeType")
     private final String responseMimeType;
-    @JsonProperty
+
+    @JsonProperty("responseSchema")
     private final GeminiSchema responseSchema;
-    @JsonProperty
+
+    @JsonProperty("candidateCount")
     private final Integer candidateCount;
-    @JsonProperty
+
+    @JsonProperty("maxOutputTokens")
     private final Integer maxOutputTokens;
-    @JsonProperty
+
+    @JsonProperty("temperature")
     private final Double temperature;
-    @JsonProperty
+
+    @JsonProperty("topK")
     private final Integer topK;
-    @JsonProperty
+
+    @JsonProperty("seed")
+    private Integer seed;
+
+    @JsonProperty("topP")
     private final Double topP;
-    @JsonProperty
+
+    @JsonProperty("presencePenalty")
     private final Double presencePenalty;
-    @JsonProperty
+
+    @JsonProperty("frequencyPenalty")
     private final Double frequencyPenalty;
-    @JsonProperty
+
+    @JsonProperty("thinkingConfig")
     private final GeminiThinkingConfig thinkingConfig;
+
+    @JsonProperty("responseLogprobs")
+    private final Boolean responseLogprobs;
+
+    @JsonProperty("enableEnhancedCivicAnswers")
+    private final Boolean enableEnhancedCivicAnswers;
+
+    @JsonProperty("logprobs")
+    private final Integer logprobs;
 
     GeminiGenerationConfig(GeminiGenerationConfigBuilder builder) {
         this.stopSequences = builder.stopSequences;
@@ -42,10 +62,14 @@ class GeminiGenerationConfig {
         this.maxOutputTokens = builder.maxOutputTokens;
         this.temperature = builder.temperature;
         this.topK = builder.topK;
+        this.seed = builder.seed;
         this.topP = builder.topP;
         this.presencePenalty = builder.presencePenalty;
         this.frequencyPenalty = builder.frequencyPenalty;
+        this.responseLogprobs = builder.responseLogprobs;
+        this.enableEnhancedCivicAnswers = builder.enableEnhancedCivicAnswers;
         this.thinkingConfig = builder.thinkingConfig;
+        this.logprobs = builder.logprobs;
     }
 
     static GeminiGenerationConfigBuilder builder() {
@@ -61,13 +85,16 @@ class GeminiGenerationConfig {
         private Integer maxOutputTokens;
         private Double temperature;
         private Integer topK;
+        private Integer seed;
         private Double topP;
         private Double presencePenalty;
         private Double frequencyPenalty;
+        private Boolean responseLogprobs;
+        private Boolean enableEnhancedCivicAnswers;
         private GeminiThinkingConfig thinkingConfig;
+        private Integer logprobs;
 
-        GeminiGenerationConfigBuilder() {
-        }
+        GeminiGenerationConfigBuilder() {}
 
         GeminiGenerationConfigBuilder stopSequences(List<String> stopSequences) {
             this.stopSequences = stopSequences;
@@ -104,6 +131,11 @@ class GeminiGenerationConfig {
             return this;
         }
 
+        GeminiGenerationConfigBuilder seed(Integer seed) {
+            this.seed = seed;
+            return this;
+        }
+
         GeminiGenerationConfigBuilder topP(Double topP) {
             this.topP = topP;
             return this;
@@ -121,6 +153,21 @@ class GeminiGenerationConfig {
 
         GeminiGenerationConfigBuilder thinkingConfig(GeminiThinkingConfig thinkingConfig) {
             this.thinkingConfig = thinkingConfig;
+            return this;
+        }
+
+        GeminiGenerationConfigBuilder responseLogprobs(Boolean responseLogprobs) {
+            this.responseLogprobs = responseLogprobs;
+            return this;
+        }
+
+        GeminiGenerationConfigBuilder enableEnhancedCivicAnswers(Boolean enableEnhancedCivicAnswers) {
+            this.enableEnhancedCivicAnswers = enableEnhancedCivicAnswers;
+            return this;
+        }
+
+        GeminiGenerationConfigBuilder logprobs(Integer logprobs) {
+            this.logprobs = logprobs;
             return this;
         }
 

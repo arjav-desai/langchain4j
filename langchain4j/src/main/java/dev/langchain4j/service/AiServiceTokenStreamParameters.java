@@ -3,11 +3,15 @@ package dev.langchain4j.service;
 import dev.langchain4j.Internal;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.guardrail.GuardrailRequestParams;
+import dev.langchain4j.invocation.InvocationContext;
 import dev.langchain4j.rag.content.Content;
+import dev.langchain4j.service.tool.ToolArgumentsErrorHandler;
+import dev.langchain4j.service.tool.ToolExecutionErrorHandler;
 import dev.langchain4j.service.tool.ToolExecutor;
-
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 /**
  * Parameters for creating an {@link AiServiceTokenStream}.
@@ -18,17 +22,27 @@ public class AiServiceTokenStreamParameters {
     private final List<ChatMessage> messages;
     private final List<ToolSpecification> toolSpecifications;
     private final Map<String, ToolExecutor> toolExecutors;
+    private final ToolArgumentsErrorHandler toolArgumentsErrorHandler;
+    private final ToolExecutionErrorHandler toolExecutionErrorHandler;
+    private final Executor toolExecutor;
     private final List<Content> retrievedContents;
     private final AiServiceContext context;
-    private final Object memoryId;
+    private final InvocationContext invocationContext;
+    private final GuardrailRequestParams commonGuardrailParams;
+    private final Object methodKey;
 
     protected AiServiceTokenStreamParameters(Builder builder) {
         this.messages = builder.messages;
         this.toolSpecifications = builder.toolSpecifications;
         this.toolExecutors = builder.toolExecutors;
+        this.toolArgumentsErrorHandler = builder.toolArgumentsErrorHandler;
+        this.toolExecutionErrorHandler = builder.toolExecutionErrorHandler;
+        this.toolExecutor = builder.toolExecutor;
         this.retrievedContents = builder.retrievedContents;
         this.context = builder.context;
-        this.memoryId = builder.memoryId;
+        this.invocationContext = builder.invocationContext;
+        this.commonGuardrailParams = builder.commonGuardrailParams;
+        this.methodKey = builder.methodKey;
     }
 
     /**
@@ -53,6 +67,27 @@ public class AiServiceTokenStreamParameters {
     }
 
     /**
+     * @since 1.4.0
+     */
+    public ToolArgumentsErrorHandler toolArgumentsErrorHandler() {
+        return toolArgumentsErrorHandler;
+    }
+
+    /**
+     * @since 1.4.0
+     */
+    public ToolExecutionErrorHandler toolExecutionErrorHandler() {
+        return toolExecutionErrorHandler;
+    }
+
+    /**
+     * @since 1.4.0
+     */
+    public Executor toolExecutor() {
+        return toolExecutor;
+    }
+
+    /**
      * @return the retrieved contents
      */
     public List<Content> gretrievedContents() {
@@ -67,10 +102,30 @@ public class AiServiceTokenStreamParameters {
     }
 
     /**
-     * @return the memory ID
+     * @since 1.6.0
      */
-    public Object memoryId() {
-        return memoryId;
+    public InvocationContext invocationContext() {
+        return invocationContext;
+    }
+
+    /**
+     * Retrieves the common parameters shared across guardrail checks for validating interactions
+     * between a user and a language model, if available.
+     *
+     * @return the {@link GuardrailRequestParams} containing chat memory, user message template,
+     * and additional variables required for guardrail processing, or null if not set.
+     */
+    public GuardrailRequestParams commonGuardrailParams() {
+        return commonGuardrailParams;
+    }
+
+    /**
+     * Retrieves the method key associated with this instance.
+     *
+     * @return the method key as an Object
+     */
+    public Object methodKey() {
+        return methodKey;
     }
 
     /**
@@ -90,12 +145,16 @@ public class AiServiceTokenStreamParameters {
         private List<ChatMessage> messages;
         private List<ToolSpecification> toolSpecifications;
         private Map<String, ToolExecutor> toolExecutors;
+        private ToolArgumentsErrorHandler toolArgumentsErrorHandler;
+        private ToolExecutionErrorHandler toolExecutionErrorHandler;
+        private Executor toolExecutor;
         private List<Content> retrievedContents;
         private AiServiceContext context;
-        private Object memoryId;
+        private InvocationContext invocationContext;
+        private GuardrailRequestParams commonGuardrailParams;
+        private Object methodKey;
 
-        protected Builder() {
-        }
+        protected Builder() {}
 
         /**
          * Sets the messages.
@@ -131,6 +190,30 @@ public class AiServiceTokenStreamParameters {
         }
 
         /**
+         * @since 1.4.0
+         */
+        public Builder toolArgumentsErrorHandler(ToolArgumentsErrorHandler handler) {
+            this.toolArgumentsErrorHandler = handler;
+            return this;
+        }
+
+        /**
+         * @since 1.4.0
+         */
+        public Builder toolExecutionErrorHandler(ToolExecutionErrorHandler handler) {
+            this.toolExecutionErrorHandler = handler;
+            return this;
+        }
+
+        /**
+         * @since 1.4.0
+         */
+        public Builder toolExecutor(Executor toolExecutor) {
+            this.toolExecutor = toolExecutor;
+            return this;
+        }
+
+        /**
          * Sets the retrieved contents.
          *
          * @param retrievedContents the retrieved contents
@@ -152,14 +235,32 @@ public class AiServiceTokenStreamParameters {
             return this;
         }
 
+        public Builder invocationContext(InvocationContext invocationContext) {
+            this.invocationContext = invocationContext;
+            return this;
+        }
+
         /**
-         * Sets the memory ID.
+         * Sets the common guardrail parameters for validating interactions between a user and a language model.
          *
-         * @param memoryId the memory ID
+         * @param commonGuardrailParams an instance of {@link GuardrailRequestParams} containing the shared parameters
+         *                              required for guardrail checks, such as chat memory, user message template,
+         *                              and additional variables.
+         * @return this builder instance.
+         */
+        public Builder commonGuardrailParams(GuardrailRequestParams commonGuardrailParams) {
+            this.commonGuardrailParams = commonGuardrailParams;
+            return this;
+        }
+
+        /**
+         * Sets the method key.
+         *
+         * @param methodKey the method key
          * @return this builder
          */
-        public Builder memoryId(Object memoryId) {
-            this.memoryId = memoryId;
+        public Builder methodKey(Object methodKey) {
+            this.methodKey = methodKey;
             return this;
         }
 
